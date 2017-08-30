@@ -18,7 +18,7 @@ int main()
 	ofstream out("output.txt");
 	if (front.is_open() && back.is_open())
 	{
-	std:string leftH, leftW, rightH, rightW;
+		string leftH, leftW, rightH, rightW;
 		string sLine1, sLine2;
 
 		//tokenizes the height/width from input txt
@@ -29,7 +29,6 @@ int main()
 		int LH = std::stoi(leftH);
 		int LW = std::stoi(leftW);
 		int RH = std::stoi(rightH);
-		int RW = std::stoi(rightW);
 
 		//keeps the original height of the left image so if right image is larger
 		//it will print blank spaces (this is handled by the int k variable)
@@ -47,12 +46,14 @@ int main()
 			if (count < ogLH)
 			{
 				out << sLine1;
+				//if line width is shorter than max line width enters spaces to preserve formatting 
 				if (sLine1.length() < LW)
 					for (int j = sLine1.length(); j < LW; j++)
 						out << " ";
 			}
 			else
 			{
+				//as mentioned above this prints spaces for the width of the image
 				for (int k = 0; k < LW; k++)
 					out << " ";
 			}
