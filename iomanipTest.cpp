@@ -36,5 +36,5 @@ int main()
 	cout << setprecision(2) << total << endl;
 	system("PAUSE");
 
-	return 0;
+	return 0; 
 }
