@@ -141,14 +141,20 @@ string Delve (const string s, const string title)
 	}
 	
 	//display list of options to player and return their choice
-	cout << endl;
 	for (int i = 0 ; i < link_list.size() ; i++)
 		cout << i+1 << "\t" << link_list[i].print() << endl;
 	
 	int player_choice;
 	cout << endl << "You decide to: " ;
 	cin >> player_choice;
-	string next_link = link_list[player_choice-1].go();
+	while (cin.fail() || player_choice > link_list.size())  //makes sure that user selects a valid option
+	{
+		cout << "Please choose an option above: ";
+		cin.clear();
+		cin.ignore(256,'\n');
+		cin >> player_choice;
+	}
+	string next_link = link_list[player_choice-1].go(); 
 	link_list.clear();
 	return next_link;
 }
@@ -159,7 +165,14 @@ void LinkBuilder (const string link)
 	size_t check_gt = link.find("&gt");
 	if (check_gt != std::string::npos)
 	{
-			cout << "this is a gt link" << endl;
+		size_t gt_loc = link.find("&gt");
+		string gt_disp;
+		string gt_go;
+		for (int j = 0 ; j < gt_loc-1; j++)
+			gt_disp += link[j];
+		for (int k = gt_loc+4; k < link.length() ; k++)
+			gt_go += link[k];
+		link_list.push_back(Link(gt_disp, gt_go));
 	}
 	else
 		link_list.push_back(Link(link, link));
