@@ -2,14 +2,17 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-
+#include <vector>
 using namespace std;
 
-bool end_of_story = 0;
+#include "link.h"
+
+bool end_of_story = false;
 
 void foo();
 string Delve(const string s, const string title);
 void LinkBuilder(const string link);
+vector<Link> link_list;
 
 main ()
 {
@@ -40,17 +43,15 @@ main ()
 			cout << "Cannot determine start" << endl; //temp will need to replace with another way to find start
 		
 		//loop that runs story
-		while (end_of_story != 1)
+		while (end_of_story != true)
 		{
-			Delve (story, pass_name);
-			foo();
+			pass_name = Delve (story, pass_name);
+			//foo();
 		}
 	}
 	
 	else
-	{
 		cout << "cannot find file";
-	}
 	
 	return 0;
 }
@@ -59,7 +60,6 @@ main ()
 string Delve (const string s, const string title)
 {
 	size_t find_passage = s.find("\""+title+"\""); //finds the pos of the segment in HTML file
-	
 	bool end_of_header = false;
 	
 	for (int i = find_passage; i < s.length() ; )
@@ -140,8 +140,17 @@ string Delve (const string s, const string title)
 			break;
 	}
 	
+	//display list of options to player and return their choice
+	cout << endl;
+	for (int i = 0 ; i < link_list.size() ; i++)
+		cout << i+1 << "\t" << link_list[i].print() << endl;
 	
-	return "foo";
+	int player_choice;
+	cout << endl << "You decide to: " ;
+	cin >> player_choice;
+	string next_link = link_list[player_choice-1].go();
+	link_list.clear();
+	return next_link;
 }
 
 //builds links sent to it from Delve
@@ -153,15 +162,11 @@ void LinkBuilder (const string link)
 			cout << "this is a gt link" << endl;
 	}
 	else
-	{
-		cout << "this is a stand link" << endl;
-	}
-	
-	cout << link << endl; //for testing
+		link_list.push_back(Link(link, link));
 }
 
 
 void foo ()
 {
-	end_of_story =1;
+	end_of_story =true;
 }
