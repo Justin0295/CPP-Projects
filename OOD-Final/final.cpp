@@ -12,6 +12,7 @@ bool end_of_story = false;
 void foo();
 string Delve(const string s, const string title);
 void LinkBuilder(const string link);
+void CommandBuilder();
 vector<Link> link_list;
 
 main ()
@@ -83,7 +84,6 @@ string Delve (const string s, const string title)
 			{
 				string link_text; //builds string to pass to link builder
 				i += 2; // skip the [[
-				cout << "LINK FOUND" << endl; // TESTING
 				for( ; ; )
 				{
 					if (s[i] != ']') 
@@ -119,7 +119,7 @@ string Delve (const string s, const string title)
 			}
 			else //not a command, somebody just used parens in their story
 			{
-				cout << s[i] << "SOMETHING WRONG" << endl; //testing
+				cout << s[i];
 				i++;
 			}
 		}
@@ -142,12 +142,12 @@ string Delve (const string s, const string title)
 	
 	//display list of options to player and return their choice
 	for (int i = 0 ; i < link_list.size() ; i++)
-		cout << i+1 << "\t" << link_list[i].print() << endl;
+		cout << "\t" <<  i+1 << "\t" << link_list[i].print() << endl;
 	
 	int player_choice;
 	cout << endl << "You decide to: " ;
 	cin >> player_choice;
-	while (cin.fail() || player_choice > link_list.size())  //makes sure that user selects a valid option
+	while (cin.fail() || player_choice > link_list.size() || player_choice <= 0)  //makes sure that user selects a valid option
 	{
 		cout << "Please choose an option above: ";
 		cin.clear();
@@ -178,7 +178,10 @@ void LinkBuilder (const string link)
 		link_list.push_back(Link(link, link));
 }
 
-
+//
+void CommandBuilder()
+{
+}
 void foo ()
 {
 	end_of_story =true;
