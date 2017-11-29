@@ -8,7 +8,8 @@ using namespace std;
 bool end_of_story = 0;
 
 void foo();
-string delve(const string s, const string title);
+string Delve(const string s, const string title);
+void LinkBuilder(const string link);
 
 main ()
 {
@@ -41,7 +42,7 @@ main ()
 		//loop that runs story
 		while (end_of_story != 1)
 		{
-			delve (story, pass_name);
+			Delve (story, pass_name);
 			foo();
 		}
 	}
@@ -55,7 +56,7 @@ main ()
 }
 
 //goes through selected passage picking out display text links sets etc
-string delve (const string s, const string title)
+string Delve (const string s, const string title)
 {
 	size_t find_passage = s.find("\""+title+"\""); //finds the pos of the segment in HTML file
 	
@@ -63,37 +64,103 @@ string delve (const string s, const string title)
 	
 	for (int i = find_passage; i < s.length() ; )
 	{
-		if (end_of_header == false && s[i] != '>') //ignores header information per assignment instructions
+		//ignores header information per assignment instructions
+		if (end_of_header == false && s[i] != '>') 
 			i++;
-		if (end_of_header == false && s[i] == '>') //ignores header information per assignment instructions
+		//indicates that the end of the header tag has been found and rest of text is fair game until '<'
+		if (end_of_header == false && s[i] == '>') 
 		{
 			end_of_header = true;
 			i++;
 		}
-		if (s[i] == '[') //possible link...checks if [[ format...if not prints char and moves on
+		
+		//+++++LINK?+++++
+		
+		//possible link...checks for [[ link format...if not prints char and moves on
+		if (s[i] == '[') 
 		{
-			if (s[i+1] == '[')
+			if (s[i+1] == '[') //this is a link, has [[ format
 			{
-				cout << "LINK FOUND" << endl;
+				string link_text; //builds string to pass to link builder
+				i += 2; // skip the [[
+				cout << "LINK FOUND" << endl; // TESTING
+				for( ; ; )
+				{
+					if (s[i] != ']') 
+					{
+						link_text += s[i];
+						i++;
+					}
+					else 
+					{
+						LinkBuilder (link_text);
+						i += 2; // skip the ]]
+						break; //link done building
+					}
+				}
 			}
-			else
+			else //this isn't a link, somebody just used brackets in their story
 			{
 				cout << s[i];
 				i++;
 			}
 		}
-		if (end_of_header == true && s[i] != '<') //if text is not part of a link set or header it will be disp
+		
+		//+++++COMMAND?+++++
+		
+		//possible command...checks for (xxx: xxxxx) format
+		if (s[i] == '(')
+		{
+			string command_text; //builds string to pass to command builder
+			if (s[i+3] == ':' || s[i+4] == ':' || s[i+5] == ':' || s[i+8] == ':') //this is a command
+			{
+				cout << "COMMAND FOUND" << endl; //testing
+				i++;
+			}
+			else //not a command, somebody just used parens in their story
+			{
+				cout << s[i] << "SOMETHING WRONG" << endl; //testing
+				i++;
+			}
+		}
+		
+		//+++++DISP+++++
+		
+		//if text is not part of a link set or header it will be disp
+		if (end_of_header == true && s[i] != '<' && s[i] != '(') 
 		{
 			cout << s[i];
 			i++;
 		}
-		if (s[i] == '<') //ends when reaches the end of the passage
-			break;
 		
+		//+++++END+++++
+		
+		//end of passage found
+		if (s[i] == '<') 
+			break;
 	}
+	
 	
 	return "foo";
 }
+
+//builds links sent to it from Delve
+void LinkBuilder (const string link)
+{
+	size_t check_gt = link.find("&gt");
+	if (check_gt != std::string::npos)
+	{
+			cout << "this is a gt link" << endl;
+	}
+	else
+	{
+		cout << "this is a stand link" << endl;
+	}
+	
+	cout << link << endl; //for testing
+}
+
+
 void foo ()
 {
 	end_of_story =1;
