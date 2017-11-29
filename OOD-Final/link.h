@@ -17,6 +17,6 @@ class Link
 		string go() {return link_addr; }
 };
 
-
+ 
 
 #endif
