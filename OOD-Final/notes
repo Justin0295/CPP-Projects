@@ -1,1 +1,15 @@
-Notes to be inserted here
+//(if: $end1 is true)[BAD DREAM](else:)[??????]
+
+string Buildcond(string const str){
+    
+    string endmsg;
+    
+    size_t begstr = str.find("[");
+    size_t endstr = str.find("]");
+    
+   endmsg = str.substr(begstr+1,endstr-begstr-1);
+    
+        return endmsg;
+    
+
+}
