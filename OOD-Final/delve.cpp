@@ -7,7 +7,9 @@ using namespace std;
 
 #include "delve.h"
 #include "link.h"
+#include "commands.h"
 
+void LinkBuilder (const string link);
 vector<Link> link_list;
 
 //goes through selected passage picking out display text links sets etc
@@ -58,28 +60,51 @@ string Delve (const string s, const string title)
 		//possible command...checks for (xxx: xxxxx) format
 		if (s[i] == '(')
 		{
-			string command_text; //builds string to pass to command builder
+			string command_text = " "; //builds string to pass to command builder
 			if (s[i+3] == ':' || s[i+4] == ':' || s[i+5] == ':' || s[i+8] == ':') //this is a command
 			{
 				string pass_cmd_txt;
-				if (s[i+5] == '$' || s[i+6] == '$' || s[i+7] == '$') //nearby $ should indicate a set command
+				if (s[i+1] == 's') //indicates a set command
 				{
-					for ( ; ; )
+					for ( ; ; i++)
 						{
-							if (s[i] != ')')
-							{
+							if (s[i] != '\n')
 								pass_cmd_txt += s[i];
-								i++;
-							}
 							else
 							{
 								pass_cmd_txt += s[i];
-								cout << "***" << pass_cmd_txt << endl;
-								i++;
+								build_set (pass_cmd_txt);
 								break;
 							}
 						}
 				}
+				if (s[i+1] == 'd') // indicates a display
+				{
+					for ( ; ; i++)
+					{
+						if (s[i] !='\n')
+							pass_cmd_txt += s[i];
+						else
+						{
+							i++;
+							break;
+						}
+					}
+				}
+				if (s[i+1] == 'i') //indicates if command
+				{
+					for ( ; ; i++)
+					{
+						if( s[i] != '\n')
+							pass_cmd_txt += s[i];
+						else
+						{
+							break;
+						}
+					}
+				}
+			//	if (s[i+1] == 'e' && s[i+8] == ':') //
+					
 				i++;
 			}
 			else //not a command, somebody just used parens in their story
@@ -103,18 +128,25 @@ string Delve (const string s, const string title)
 	for (int i = 0 ; i < link_list.size() ; i++)
 		cout << "\t" <<  i+1 << "\t" << link_list[i].print() << endl;
 	
-	int player_choice;
-	cout << endl << "You decide to: " ;
-	cin >> player_choice;
-	while (cin.fail() || player_choice > link_list.size() || player_choice <= 0)  //makes sure that user selects a valid option
+	string next_link;
+	if (link_list.size() == 0)
+		next_link = "@#$GAMEOVER";
+	
+	else
 	{
-		cout << "Please choose an option above: ";
-		cin.clear();
-		cin.ignore(256,'\n');
+		int player_choice;
+		cout << endl << "You decide to: " ;
 		cin >> player_choice;
+		while (cin.fail() || player_choice > link_list.size() || player_choice <= 0)  //makes sure that user selects a valid option
+		{
+			cout << "Please choose an option above: ";
+			cin.clear();
+			cin.ignore(256,'\n');
+			cin >> player_choice;
+		}
+		next_link = link_list[player_choice-1].go(); 
+		link_list.clear();
 	}
-	string next_link = link_list[player_choice-1].go(); 
-	link_list.clear();
 	return next_link;
 }
 
