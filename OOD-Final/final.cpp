@@ -7,11 +7,11 @@ using namespace std;
 
 #include "link.h"
 #include "delve.h"
+#include "commands.h"
+
+string find_start (const string str);
 
 bool end_of_story = false;
-
-void foo();
-
 
 main ()
 {
@@ -23,29 +23,39 @@ main ()
 		stringstream buf;
 		buf << pFile.rdbuf();
 		string story = buf.str();
-		string pass_name = "start";
+		string pass_name;
 		
-		//find first passage title
-		size_t start_check_1 = story.find("=\"New Game");
-		size_t start_check_2 = story.find("=\"Start");
-		size_t start_check_3 = story.find("=\"start");
-		size_t start_check_4 = story.find("=\"new game");
-		if (start_check_1 != std::string::npos)
-			pass_name = ("New Game");
-		else if (start_check_2 != std::string::npos)
-			pass_name = ("Start");
-		else if (start_check_3 != std::string::npos)
-			pass_name = ("start");
-		else if (start_check_4 != std::string::npos)
-			pass_name = ("new game");
-		else
-			cout << "Cannot determine start" << endl; //temp will need to replace with another way to find start
+		//finds first passage's passagedata tag
+		size_t start_check = story.find ("<tw-passagedata"); 
+		if (start_check != std::string::npos)
+		{
+			string snippet;
+			for (int i = start_check ; i < story.length() ; i++)
+			{
+				if (story[i] != '\n')
+					snippet += story[i];
+				else
+				{
+					pass_name = find_start (snippet);
+					break;
+				}
+			}
+		}
+		else 
+		{
+			cout << "Could not find any passagedata in file" << endl;
+			pass_name = "@#$GAMEOVER";
+		}
 		
 		//loop that runs story
 		while (end_of_story != true)
 		{
 			pass_name = Delve (story, pass_name);
-			//foo();
+			if (pass_name == "@#$GAMEOVER")
+			{
+				end_of_story = true;
+				cout << endl << "\t\t THE END" <<endl;
+			}
 		}
 	}
 	
@@ -55,13 +65,23 @@ main ()
 	return 0;
 }
 
-
-
-
-
-//
-
-void foo ()
+string find_start (const string str)
 {
-	end_of_story =true;
+	size_t found = str.find("name="); //finds the name tag in the first passage's passagedata
+	string s;
+	if (found != std::string::npos)
+	{
+		for (int i = found+6; i < str.length() ; i++) //builds str to return as the first pass_name until it reaches closing "
+		{
+			if (str[i] != '\"')
+				s += str[i];
+			else
+				return s;
+		}
+	}
+	else
+	{
+		cout << "Cannot find name=\"xxx\" tag in first passage's passagedata" << endl;
+		return "@#$GAMEOVER";
+	}
 }
